@@ -98,22 +98,22 @@ from a distribution that matches these parameters and compare your result to the
 
 Given Chebyshev's Inequality, we know that $P(|X-\mu|\geq k\sigma)\geq 1-\frac{1}{k^2}$, and that $1-\frac{1}{k^2}=0.75$ so $k=2$.
 
-So the interval is $\mu\pm2\sigma=(0,10.6)$
+So the interval is $\mu\pm2\sigma=(0.5,10.5)$
 
 ### Empirical Answer 
 
+We want a pdf that has the highest probability at P(A=0), where A is the number of employees absent, and decreases rapidly such that P(A>=10) is marginal. We know that the parameters of the pdf are mean 5.5, and sd 2.5.
+
+So we created a gamma distribution using parameters $r=4.84$, and $\lambda=0.88$, which we solved for from the formulae for E(X) and V(X) of a gamma distribution. 
+
+We then created 10000 values from this distribution, and checked that the mean and sd of these values equals those of the distribution.
+
+Finally, we find the 75% interval via finding the 12.5% and 87.5% tiles of our gamma distribution and find the interval (2.84, 8.4).
+
 ```{r}
-lambda <- 1/5.5
-cdf <- pexp(1:16,lambda)
-pdf <- c()
+x <- rgamma(0:10000, 4.84, .88) ; mean(x) ; sd(x)
 
-for (i in 1:15) {
-  pdf[i] <- cdf[i+1]-cdf[i]
-}
-
-absent_vec <- sample(1:15, 15, replace=T, prob=pdf); absent_vec
-
-
+qgamma(c(.125, .875), 4.84, .88)
 ```
 
 
