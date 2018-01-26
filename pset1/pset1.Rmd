@@ -3,7 +3,7 @@ title: "STAT 370: Theoretical Statistics - Problem Set 1"
 author: "Group 5: Bonnie Lin, Daniel Njoo"
 date: "January 25, 2018"
 output: 
-  pdf_document:
+  ioslides_presentation:
     fig_height: 3
     fig_width: 5
   html_document:
@@ -76,9 +76,9 @@ $E[X]=\frac{\alpha}{\beta}$ and $V[X]\frac{\alpha}{\beta^2}$, so solving for $\a
 
 $(1-P(b\leq3.02))+P(b\geq2.98)$
 
-=(1-pgamma(3.02,90000,30000))+pnorm(2.98,90000,30000)
+=(1-pgamma(3.02,90000,30000))+pgamma(2.98,90000,30000)
 
-=`r (1-pgamma(3.02,90000,30000))+pnorm(2.98,90000,30000)`
+=`r (1-pgamma(3.02,90000,30000))+pgamma(2.98,90000,30000)`
 
 ### Empirical Answer 
 
@@ -131,21 +131,53 @@ Therefore the average number of cards required to draw the first ace would be $9
 
 ### Empirical Answer 
 
+We create our deck here, with 4 Aces and 48 other 'no's.
+
+```{r}
+deck <- c(rep("Ace", 4), rep("no", 48))
+```
+
+We then shuffle the deck; here we show the first 6 cards drawn.
+
+```{r}
+shuffled.deck <- shuffle(deck); head(shuffled.deck) # Example
+```
+
+We then search through all 52 cards for the locations of the Aces, which are given to as location indices in the 52-long vector. 
+
+```{r}
+grep("Ace", shuffled.deck) # Location of Aces
+```
+
+If we min() this we can find the location of the first Ace of drawn.
+
+```{r}
+grep("Ace", shuffled.deck) %>%  min()
+```
+
+We then incorporate this into a function which we run 10000 times with do().
+
 ```{r}
 question9 <- function() {
 
-  deck <- c(rep("Ace", 4), rep("no", 48))       # create deck with 4 Aces, and 48 other
-  shuffled.deck <- shuffle(deck)                # shuffle
-  locations <- grep("Ace", shuffled.deck)       # find locations
-  num.before <- min(locations)                  # find location of first Ace
+  deck <- c(rep("Ace", 4), rep("no", 48))
+  shuffled.deck <- shuffle(deck)
+  locations <- grep("Ace", shuffled.deck)
+  num.before <- min(locations)
   return(num.before)
 
 }
 
-num.cards.for.ace <- do(numsim) * question9()   # repeat 
-
+num.cards.for.ace <- do(numsim) * question9()
 num.cards.for.ace %>% 
   unlist() %>% 
-  mean()
+  mean()  # %>% means passing previous variable as parameter of next function; think "then"
+```
+
+And we find a mean of 10.46, with a 95% CI of (10.30, 10.62), which contains our analytic answer of 10.6
+
+```{r}
+
+t.test(~ question9, data = num.cards.for.ace)
 ```
 
