@@ -81,9 +81,22 @@ $(1-P(b\leq3.02))+P(b\geq2.98)$
 =`r (1-pgamma(3.02,90000,30000))+pgamma(2.98,90000,30000)`
 
 ### Empirical Answer 
+We create a vector of 10,000 numbers that follow a Normal Distribution and determine the sum of those within the vector that fulfill the conditions, x>3.02 or x<2.98. Then, we found the proportion of these out of 10,000.
+
+```{r}
+norm<-rnorm(10000, 3, 0.01)
+sum(norm>3.02 | norm<2.98)/10000
+```
 
 
+We create a vector of 10,000 numbers that follow a Gamma Distribution and determine the sum of those within the vector that fulfill the conditions, x>3.02 or x<2.98. Then, we found the proportion of these out of 10,000.
 
+```{r}
+gamma<-rgamma(10000, 90000, 30000)
+sum(gamma>3.02 | gamma<2.98)/10000
+```
+
+We can see that the simulation gives a good estimate of the empirical answer (0.05). 
 
 ## Question 5
 
