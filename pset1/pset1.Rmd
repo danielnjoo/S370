@@ -1,0 +1,151 @@
+---
+title: "STAT 370: Theoretical Statistics - Problem Set 1"
+author: "Group 5: Bonnie Lin, Daniel Njoo"
+date: "January 25, 2018"
+output: 
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+
+```{r, include=FALSE}
+# Don't delete this chunk if you are using the mosaic package
+# This loads the mosaic and dplyr packages
+require(mosaic)
+```
+
+```{r, include=FALSE}
+# Some customization.  You can alter or delete as desired (if you know what you are doing).
+
+# This changes the default colors in lattice plots.
+trellis.par.set(theme=theme.mosaic())  
+
+# knitr settings to control how R chunks work.
+require(knitr)
+opts_chunk$set(
+  tidy=FALSE,     # display code as typed
+  size="small"    # slightly smaller font for code
+)
+```
+
+```{r}
+library(dplyr)
+set.seed(370)
+numsim <- 10000
+```
+
+
+## Question 3
+
+A machine produces bearings with mean diameter 3.00 inches and standard deviation 0.01
+inches. Bearings with diameters in excess of 3.02 inches or less than 2.98 inches will be deemed
+to fail to meet quality specifications. Assume that the underlying process is normally distributed.
+Approximately what fraction of this machine’s production will fail to meet specifications? Simulate
+from a normal distribution to check your analytic answer. Then assume that the underlying
+process is Gamma distributed with the same mean and sd. Simulate from an appropriate Gamma
+distribution to check your analytic answer. How important is the normality assumption?
+
+### Analytical Answer
+
+Assuming Normal distribution:
+
+Let b represent a bearing produced by the machine. Then:
+
+$P(b>3.02$ or $b<2.98)$ 
+
+=$(1-P(b\leq3.02))+P(b\geq2.98)$ — since it's a continuous probability distribution
+
+=(1-pnorm(3.02,3,0.01))+pnorm(2.98,3,0.01)
+
+=`r (1-pnorm(3.02,3,0.01))+pnorm(2.98,3,0.01)`
+
+--
+
+Assuming Gamma distribution
+
+Let b represent a bearing produced by the machine. Then:
+
+$E[X]=\frac{\alpha}{\beta}$ and $V[X]\frac{\alpha}{\beta^2}$, so solving for $\alpha$ and $\beta$, we find $\alpha=90000$ and $\beta=30000$, so 
+
+$(1-P(b\leq3.02))+P(b\geq2.98)$
+
+=(1-pgamma(3.02,90000,30000))+pnorm(2.98,90000,30000)
+
+=`r (1-pgamma(3.02,90000,30000))+pnorm(2.98,90000,30000)`
+
+### Empirical Answer 
+
+
+
+
+## Question 5
+
+A personnel manager for a certain industry has records of the number of employees absent
+per day. The average number absent is 5.5, and the standard deviation is 2.5. Because there are
+many days with zero, one or two absent and only a few with more than 10 absent, the frequency
+distribution is highly skewed. The manager wants to publish an interval in which at least 75% of
+these values lie. Use the result from the previous problem to find such an interval. Generate data
+from a distribution that matches these parameters and compare your result to the true value.
+
+### Analytical Answer 
+
+Given Chebyshev's Inequality, we know that $P(|X-\mu|\geq k\sigma)\geq 1-\frac{1}{k^2}$, and that $1-\frac{1}{k^2}=0.75$ so $k=2$.
+
+So the interval is $\mu\pm2\sigma=(0,10.6)$
+
+### Empirical Answer 
+
+```{r}
+lambda <- 1/5.5
+cdf <- pexp(1:16,lambda)
+pdf <- c()
+
+for (i in 1:15) {
+  pdf[i] <- cdf[i+1]-cdf[i]
+}
+
+absent_vec <- sample(1:15, 15, replace=T, prob=pdf); absent_vec
+
+
+```
+
+
+## Question 9
+
+Shuffle an ordinary deck of 52 playing cards containing four aces. Then turn up cards from
+the top until the first ace appears. On the average, how many cards are required to produce the
+first ace?
+
+### Analytical Answer 
+
+4 Aces can divide a deck into 5 portions. Each of these portions would on average have $\frac{48}{5}=9.6$ cards in them.
+
+Therefore the average number of cards required to draw the first ace would be $9.6+1=10.6$, in order to include the drawing of the ace itself.
+
+### Empirical Answer 
+
+```{r}
+question9 <- function() {
+
+  deck <- c(rep("Ace", 4), rep("no", 48))       # create deck with 4 Aces, and 48 other
+  shuffled.deck <- shuffle(deck)                # shuffle
+  locations <- grep("Ace", shuffled.deck)       # find locations
+  num.before <- min(locations)                  # find location of first Ace
+  return(num.before)
+
+}
+
+num.cards.for.ace <- do(numsim) * question9()   # repeat 
+
+num.cards.for.ace %>% 
+  unlist() %>% 
+  mean()
+```
+

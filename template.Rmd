@@ -1,0 +1,98 @@
+---
+title: "STAT 370: Theoretical Statistics - Problem Set 1"
+author: "Nicholas Horton (nhorton@amherst.edu)"
+date: "January 25, 2018"
+output: 
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+
+```{r, include=FALSE}
+# Don't delete this chunk if you are using the mosaic package
+# This loads the mosaic and dplyr packages
+require(mosaic)
+```
+
+```{r, include=FALSE}
+# Some customization.  You can alter or delete as desired (if you know what you are doing).
+
+# This changes the default colors in lattice plots.
+trellis.par.set(theme=theme.mosaic())  
+
+# knitr settings to control how R chunks work.
+require(knitr)
+opts_chunk$set(
+  tidy=FALSE,     # display code as typed
+  size="small"    # slightly smaller font for code
+)
+```
+
+```{r, include=FALSE}
+# Load additional packages here.  Uncomment the line below to use Project MOSAIC data sets.
+# require(mosaicData)   
+```
+
+#### Note 
+Groups are *not* responsible for solutions for problems 1 and 2 (though I'd welcome any corrections or improvements to my solutions if you have any).
+
+## Question 1
+
+Let X and Y be identically distributed independent random variables such that the moment generating function of X + Y is
+M(t)=$0.09e^{-2t} +0.24e^{-t} +0.34 + 0.24e^t +0.09e^{2t}$, for $-\infty <t < \infty$. Calculate $P(X <= 0)$.
+
+### Analytical Answer
+
+First recall that (Rice section 4.5) notes that a moment generating function (mgf) fully characterizes a distribution.  He also states that a property of a moment generating function is that for independent random variables X and Y, the mgf for Z = X + Y is given by: $M_z(t) = M_x(t) * M_y(t)$.  Since $M_x(t) = M_y(t)$ we have $M_z(t) = M_x(t)^2$.  If we factor $M(t)$ we have that $M_x(t) = 0.3e^t + 0.4 + 0.3e^{-t} = 0.3e^t + 0.4e^0 + 0.3e^{-t}$.  We conclude the X is a discrete random variable that takes on values -1 and 1 with probability 0.3 and 0 with probability 0.4.  So $P(X <= 0) = 0.7.
+
+Note: no simulation is required here.
+
+## Question 2
+
+Assume that there are nine parking spaces next to one another in a parking lot. Nine cars need to be parked by an attendant. Three of the cars are hybrids, three are minivans, and three SUVs. Assuming that the attendant parks the cars at random, what is the probability that the three hybrids are parked adjacent to one another? Simulate to check your answer. 
+
+### Analytical Answer 
+
+Because there are 9 spaces and 9 vehicles, there are 9! possible orderings (Preposition A, Rice, page 9). Treating the three adjacent hybrids as one entity for the number of orderings that have three adjacent hybrids. There are 7! different orderings in the position of the three hybrids, and 3! different orderings for the ordering of the hybrids within the adjacent group. So, the probability that the three hybrids are parked adjacent to each other is:
+$$ \frac{7!*3!}{9!} = \frac{1}{12} \approx 0.0833$$
+
+### Empirical Answer 
+
+We shuffle our set of vehicles and locate the position of the first and last hybrid cars and find the distance between them. We repeat this process many times to find the approximate probability in which the distance is 2. 
+
+```{r}
+set.seed(370) # Get same results each time
+numsim <- 10000 
+cars <- c(rep("hybrid", 3), rep("no", 6))  
+```
+
+```{r}
+spots <- shuffle(cars); spots  # let's check out an example
+grep("hybrid", spots)
+spots <- shuffle(cars); spots  # and another
+grep("hybrid", spots)
+```
+
+Now let's write a function to simulate the process: the function will return a logical vector (TRUE or FALSE)
+```{r}
+vehiclearrange <- function() {
+  spots  <- shuffle(cars)
+  locations <- grep("hybrid", spots)
+  together <- diff(range(locations)) == 2 # Distance between 1st and 3rd hybrid
+  return(together)
+}
+
+adjacenthybrids <- do(numsim) * vehiclearrange() # Repeat 
+binom.test(~ adjacenthybrids) #Confidence intervals
+```
+
+### Conclusion
+
+We can see that the simulation gives a pretty good estimate of the empirical answer (0.083).  We can further check our answer using a confidence interval, and we see our simulation and empirical solution are included in the 95% confidence interval. 
