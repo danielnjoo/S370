@@ -84,7 +84,7 @@ $(1-P(b\leq3.02))+P(b\geq2.98)$
 
 #### Normal 
 
-We created a vector of 10,000 numbers that follow a Normal Distribution and determined the number of those within the vector that fulfill the conditions, x>3.02 or x<2.98. Then, we found the proportion of these out of 10,000.
+We created a vector of 10,000 numbers that follow a Normal Distribution with mean = 3 inches and sd = 0.01 inches and determined the number of those within the vector that fulfill the conditions, x>3.02 or x<2.98. Then, we found the proportion of these out of 10,000.
 
 ```{r}
 norm<-rnorm(numsim, 3, 0.01)
@@ -99,19 +99,20 @@ xpnorm(c(2.98,3.02),3,0.01,plot=T)
 
 #### Gamma 
 
-We create a vector of 10,000 numbers that follow a Gamma Distribution and determine the sum of those within the vector that fulfill the conditions, x>3.02 or x<2.98. Then, we found the proportion of these out of 10,000.
+We created a vector of 10,000 numbers that follow a Gamma Distribution with parameters a = 9000 and b = 30000 and determined the number of those that fulfill the conditions, x>3.02 or x<2.98. Then, we found the proportion of these out of 10,000.
 
 ```{r}
 gamma<-rgamma(n=numsim, shape=90000, rate=30000)
 sum(gamma>3.02 | gamma<2.98)/numsim
 ```
 
-We can see that the simulation gives a good estimate of the empirical answer (0.05). A visualization shows us that 0.046 (just like the Normal) fulfills the conditions.
+Sampling under a Gamma distribution with the given parameters, we can see that the simulation (0.0474) gives a good estimate of the empirical answer (0.05). A visualization shows us that 0.046 of the bearings fail to meet quality specifications as their diameters fulfill the conditions, x>3.02 or x<2.98. 
 
 ```{r}
 xpgamma(c(2.98,3.02),shape=90000,rate=30000,plot=T)
 ```
 
+Since the Normal and Gamma distributions give similar fractions of the machine's production of dysfunctional bearings, we can confirm that the Normality asssumption is not important.
 
 ## Question 5
 
