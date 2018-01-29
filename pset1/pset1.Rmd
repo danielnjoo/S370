@@ -84,14 +84,14 @@ $(1-P(b\leq3.02))+P(b\geq2.98)$
 
 #### Normal 
 
-We create a vector of 10,000 numbers that follow a Normal Distribution and determine the number of those within the vector that fulfill the conditions, x>3.02 or x<2.98. Then, we found the proportion of these out of 10,000.
+We created a vector of 10,000 numbers that follow a Normal Distribution and determined the number of those within the vector that fulfill the conditions, x>3.02 or x<2.98. Then, we found the proportion of these out of 10,000.
 
 ```{r}
 norm<-rnorm(numsim, 3, 0.01)
 sum(norm>3.02 | norm<2.98)/numsim
 ```
 
-Sampling under a normal distribution, we find that 0.0447 of the bearings fail to meet the specification. We confirm this with a visualization that shows that 0.046 of the distribution falls within our specified conditions.
+Sampling under a normal distribution, we find that 0.0434 of the bearings fail to meet the quality specifications. We confirm this with a visualization that shows that 0.046 of the distribution falls within our specified conditions, x>3.02 or x<2.98.
 
 ```{r}
 xpnorm(c(2.98,3.02),3,0.01,plot=T)
