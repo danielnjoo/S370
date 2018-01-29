@@ -1,9 +1,9 @@
 ---
 title: "STAT 370: Theoretical Statistics - Problem Set 1"
-author: "Group 5: Bonnie Lin, Daniel Njoo"
+author: "Group 5: Bonnie Lin, Daniel Njoo, Will Zaubler"
 date: "January 25, 2018"
 output: 
-  ioslides_presentation:
+  pdf_document:
     fig_height: 3
     fig_width: 5
   html_document:
@@ -81,22 +81,37 @@ $(1-P(b\leq3.02))+P(b\geq2.98)$
 =`r (1-pgamma(3.02,90000,30000))+pgamma(2.98,90000,30000)`
 
 ### Empirical Answer 
-We create a vector of 10,000 numbers that follow a Normal Distribution and determine the sum of those within the vector that fulfill the conditions, x>3.02 or x<2.98. Then, we found the proportion of these out of 10,000.
+
+#### Normal 
+
+We create a vector of 10,000 numbers that follow a Normal Distribution and determine the number of those within the vector that fulfill the conditions, x>3.02 or x<2.98. Then, we found the proportion of these out of 10,000.
 
 ```{r}
-norm<-rnorm(10000, 3, 0.01)
-sum(norm>3.02 | norm<2.98)/10000
+norm<-rnorm(numsim, 3, 0.01)
+sum(norm>3.02 | norm<2.98)/numsim
 ```
 
+Sampling under a normal distribution, we find that 0.0447 of the bearings fail to meet the specification. We confirm this with a visualization that shows that 0.046 of the distribution falls within our specified conditions.
+
+```{r}
+xpnorm(c(2.98,3.02),3,0.01,plot=T)
+```
+
+#### Gamma 
 
 We create a vector of 10,000 numbers that follow a Gamma Distribution and determine the sum of those within the vector that fulfill the conditions, x>3.02 or x<2.98. Then, we found the proportion of these out of 10,000.
 
 ```{r}
-gamma<-rgamma(10000, 90000, 30000)
-sum(gamma>3.02 | gamma<2.98)/10000
+gamma<-rgamma(n=numsim, shape=90000, rate=30000)
+sum(gamma>3.02 | gamma<2.98)/numsim
 ```
 
-We can see that the simulation gives a good estimate of the empirical answer (0.05). 
+We can see that the simulation gives a good estimate of the empirical answer (0.05). A visualization shows us that 0.046 (just like the Normal) fulfills the conditions.
+
+```{r}
+xpgamma(c(2.98,3.02),shape=90000,rate=30000,plot=T)
+```
+
 
 ## Question 5
 
@@ -124,9 +139,15 @@ We then created 10000 values from this distribution, and checked that the mean a
 Finally, we find the 75% interval via finding the 12.5% and 87.5% tiles of our gamma distribution and find the interval (2.84, 8.4).
 
 ```{r}
-x <- rgamma(0:10000, 4.84, .88) ; mean(x) ; sd(x)
+x <- rgamma(n=numsim, shape=4.84, rate=.88) ; mean(x) ; sd(x)
 
-qgamma(c(.125, .875), 4.84, .88)
+qgamma(c(.125, .875), shape=4.84, rate=.88)
+```
+
+Using our empirical approach we therefore found an interval of (2.84, 8.40), which is much narrower than our analytical approach via Chebyshev's which created an interval of (0.5, 10.5) — extremely conservative! A graphical comparison is shown below:
+
+```{r}
+xpgamma(c(2.84, 8.4), shape=4.84, rate=.88, return="plot") + geom_vline(xintercept=c(0.5,10.5))
 ```
 
 
@@ -153,6 +174,7 @@ deck <- c(rep("Ace", 4), rep("no", 48))
 We then shuffle the deck; here we show the first 6 cards drawn.
 
 ```{r}
+set.seed(9)
 shuffled.deck <- shuffle(deck); head(shuffled.deck) # Example
 ```
 
@@ -173,7 +195,6 @@ We then incorporate this into a function which we run 10000 times with do().
 ```{r}
 question9 <- function() {
 
-  deck <- c(rep("Ace", 4), rep("no", 48))
   shuffled.deck <- shuffle(deck)
   locations <- grep("Ace", shuffled.deck)
   num.before <- min(locations)
@@ -190,7 +211,12 @@ num.cards.for.ace %>%
 And we find a mean of 10.46, with a 95% CI of (10.30, 10.62), which contains our analytic answer of 10.6
 
 ```{r}
-
 t.test(~ question9, data = num.cards.for.ace)
+```
+
+A histogram of the cards drawn from 10000 simulations is  shown below:
+
+```{r}
+as.numeric(unlist(num.cards.for.ace)) %>% hist(main="Histogram of cards drawn till ace from shuffled deck")
 ```
 
